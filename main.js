@@ -16,12 +16,43 @@ function step() {
                    0.5 * (prev(points, i)[1] + next(points, i)[1])];
         vectors.push([avg[0] - points[i][0], avg[1] - points[i][1]]);
     }
+
+    // compute area to force it to be area preserving by expanding away from centroid
+    var area_before = 0.0;
+    var area_after = 0.0;
     for (i=0; i<points.length; ++i) {
-        // var vec = vectors[i];
-        var vec = [vectors[i][0] - 0.5 * (prev(vectors, i)[0] + next(vectors, i)[0]),
+        area_before += prev(points, i)[0] * points[i][1] - prev(points, i)[1] * points[i][0];
+    }
+
+    for (i=0; i<points.length; ++i) {
+        var vec;
+        if (d3.select("#surface_tension").property("checked")) {
+            vec = [vectors[i][0] - 0.5 * (prev(vectors, i)[0] + next(vectors, i)[0]),
                    vectors[i][1] - 0.5 * (prev(vectors, i)[1] + next(vectors, i)[1])];
+        } else {
+            vec = vectors[i];
+        }
         points[i][0] += vec[0] * speed;
         points[i][1] += vec[1] * speed;
+    }
+
+    if (d3.select("#surface_tension_2").property("checked")) {
+        for (i=0; i<points.length; ++i) {
+            area_after += prev(points, i)[0] * points[i][1] - prev(points, i)[1] * points[i][0];
+        }
+        var area_ratio = area_after / area_before;
+        var displacement = Math.sqrt(area_ratio);
+        var center = [0,0];
+        for (i=0; i<points.length; ++i) {
+            center[0] += points[i][0];
+            center[1] += points[i][1];
+        }
+        center[0] /= points.length;
+        center[1] /= points.length;
+        for (i=0; i<points.length; ++i) {
+            points[i][0] = (points[i][0] - center[0]) / displacement + center[0];
+            points[i][1] = (points[i][1] - center[1]) / displacement + center[1];
+        }
     }
 }
 
@@ -60,7 +91,10 @@ function main()
             yeah();
         });
     d3.select("#faster")
-        .on("click", function() { speed *= 1.5; });
+        .on("click", function() { 
+            speed *= 1.5; 
+            console.log("new speed: ", speed);
+        });
     var svg = d3.select("#main").append("svg")
         .attr("width", 480)
         .attr("height", 480)
