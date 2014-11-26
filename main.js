@@ -1,27 +1,27 @@
 var lines = [], points = [];
 var lineElements = [], pointElements = [];
+var speed = 0.01;
 
 function step() {
-    function prev(i) {
-        return points[(i + points.length - 1) % points.length];
+    function prev(vec, i) {
+        return vec[(i + vec.length - 1) % vec.length];
     }
-    function next(i) {
-        return points[(i+1) % points.length];
+    function next(vec, i) {
+        return vec[(i+1) % vec.length];
     }
-    var newPoints = [];
+    var vectors = [];
     var mu = 0.1;
     for (var i=0; i<points.length; ++i) {
-        var avg = [0.5 * (prev(i)[0] + next(i)[0]),
-                   0.5 * (prev(i)[1] + next(i)[1])];
-        newPoints.push([avg[0] * mu + points[i][0] * (1.0 - mu),
-                         avg[1] * mu + points[i][1] * (1.0 - mu)]);
+        var avg = [0.5 * (prev(points, i)[0] + next(points, i)[0]),
+                   0.5 * (prev(points, i)[1] + next(points, i)[1])];
+        vectors.push([avg[0] - points[i][0], avg[1] - points[i][1]]);
     }
     for (i=0; i<points.length; ++i) {
-        // NB: don't replace this with an assignment to points[i];
-        // we need to mutate the previous list object so that the svg
-        // elements see it;
-        points[i][0] = newPoints[i][0];
-        points[i][1] = newPoints[i][1];
+        // var vec = vectors[i];
+        var vec = [vectors[i][0] - 0.5 * (prev(vectors, i)[0] + next(vectors, i)[0]),
+                   vectors[i][1] - 0.5 * (prev(vectors, i)[1] + next(vectors, i)[1])];
+        points[i][0] += vec[0] * speed;
+        points[i][1] += vec[1] * speed;
     }
 }
 
@@ -59,6 +59,8 @@ function main()
             }
             yeah();
         });
+    d3.select("#faster")
+        .on("click", function() { speed *= 1.5; });
     var svg = d3.select("#main").append("svg")
         .attr("width", 480)
         .attr("height", 480)
