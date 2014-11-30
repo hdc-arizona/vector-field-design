@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+</style>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="lux.js"></script>
+<script src="underscore.js"></script>
+
+<div id="main">
+  
+</div>
+<button id="step">Step</button>
+<button id="go">Go</button>
+<button id="faster">Faster</button>
+
+<form>
+  <input type="radio" name="foo" id="mean_curvature" checked>Mean Curvature</input>
+  <input type="radio" name="foo" id="surface_tension">Surface Tension</input>
+  <input type="radio" name="foo" id="surface_tension_2">Surface Tension 2</input>
+</form>
+
+<script src="vectorFieldSolver.js"></script>
