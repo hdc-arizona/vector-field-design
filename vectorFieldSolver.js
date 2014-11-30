@@ -1,15 +1,15 @@
 // assumes range zero to one:
-function paint(v, width, height) {
+function paint(v, width, height, bg, fg) {
+    bg = bg || d3.scale.linear().domain([0, 1]).range([d3.rgb(0,0,0), d3.rgb(240, 240, 240)]);
+    fg = fg || d3.scale.linear().domain([0, 1]).range([d3.rgb(15,15,15), d3.rgb(255, 255, 255)]);
     var str = "\n";
     var styles = [];
     for (var i=height+2; i-->0;) {
         for (var j=0; j<width+2; ++j) {
             str = str + "%c" + (j > 0 && j < width+1 && i > 0 && i < height+1 ? "o" : "O");
             var val = v[i * (width + 2) + j];
-            var b = ~~(val * 240);
-            var bg = String(b), fg = String(b + 15);
-            styles.push("background-color: rgb(" + bg + "," + bg + "," + bg + "); color: rgb(" +
-                        fg + "," + fg + "," + fg + ")");
+            styles.push("background-color: " + bg(val).toString()
+                        + " ; color: " + fg(val).toString());
         }
         str = str + "\n";
     }
@@ -178,6 +178,7 @@ function createSolver(opts)
         if (r_i_l2 === 0)
             return x_i;
 
+        // FIXME adaptive number of steps, diagonal preconditioning
         for (var i=0; i<100; ++i) {
             var Ad_i = applyATA(d_i);
             var alpha_i = r_i_l2 / ddot(d_i, Ad_i);
